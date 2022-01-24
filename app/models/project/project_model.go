@@ -23,6 +23,11 @@ type Project struct {
 	models.CommonTimestampsField
 }
 
+type OriginalsCollection struct {
+	Originals []Original `json:"originals"`
+	models.BaseCollection
+}
+
 func (project *Project) Create() {
 	projects := All()
 

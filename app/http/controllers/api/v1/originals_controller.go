@@ -2,10 +2,9 @@ package v1
 
 import (
 	"github.com/curatorc/cngf/response"
+	"github.com/gin-gonic/gin"
 	"sentry-white-go/app/models/original"
 	"sentry-white-go/app/requests"
-
-	"github.com/gin-gonic/gin"
 )
 
 type OriginalsController struct {
@@ -13,8 +12,22 @@ type OriginalsController struct {
 }
 
 func (oc *OriginalsController) Index(c *gin.Context) {
-	originals := original.All()
-	response.Data(c, originals)
+	ocl := original.All()
+
+	// 过滤 deleted
+	var os []original.Original
+	for _, o := range ocl.Originals {
+		if o.DeletedAt.IsZero() {
+			os = append(os, o)
+		}
+	}
+
+	response.JSON(c, gin.H{
+		"data": os,
+		"meta": gin.H{
+			"total": len(os),
+		},
+	})
 }
 
 func (oc *OriginalsController) Show(c *gin.Context) {

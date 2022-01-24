@@ -2,26 +2,45 @@
 package models
 
 import (
+	"sentry-white-go/app/handlers/oss"
 	"time"
 
 	"github.com/spf13/cast"
 )
 
+type IModel interface {
+	GetStringID() string
+}
+
 // BaseModel 模型基类
 type BaseModel struct {
-	ID          uint64 `gorm:"column:id;primaryKey;autoIncrement;" json:"id,omitempty"`
-	Status      int8   `gorm:"column:status;type:int;index;" json:"status,omitempty"`
-	AdminRemark string `gorm:"column:admin_remark;default:null;" json:"admin_remark,omitempty"`
+	ID          uint64 `json:"id,omitempty"`
+	Status      int8   `json:"status,omitempty"`
+	AdminRemark string `json:"admin_remark,omitempty"`
 }
 
 // CommonTimestampsField 时间戳
 type CommonTimestampsField struct {
-	CreatedAt time.Time `gorm:"column:created_at;index;" json:"created_at,omitempty"`
-	UpdatedAt time.Time `gorm:"column:updated_at;index;" json:"updated_at,omitempty"`
-	DeletedAt time.Time `gorm:"column:deleted_at;index;" json:"deleted_at,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
+}
+
+// BaseCollection 模型集合
+type BaseCollection struct {
+	MaxID uint64 `json:"max_id,omitempty"`
 }
 
 // GetStringID 获取 ID 的字符串格式
-func (a BaseModel) GetStringID() string {
-	return cast.ToString(a.ID)
+func (bm BaseModel) GetStringID() string {
+	return cast.ToString(bm.ID)
+}
+
+func UploadToOss(path string, collection interface{}, newModel IModel) {
+	oss.Upload(path, collection)
+	oss.Upload(path+"/"+newModel.GetStringID(), newModel)
+}
+func DeleteOnOss(path string, collection interface{}, newModel IModel) {
+	oss.Upload(path, collection)
+	oss.Delete(path + "/" + newModel.GetStringID())
 }

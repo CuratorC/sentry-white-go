@@ -2,8 +2,7 @@
 package original
 
 import (
-	"github.com/spf13/cast"
-	"sentry-white-go/app/handlers/oss"
+	"github.com/curatorc/cngf/app"
 	"sentry-white-go/app/models"
 	"sentry-white-go/app/models/project"
 )
@@ -22,49 +21,51 @@ type Original struct {
 	models.CommonTimestampsField
 }
 
-func (original *Original) Create() {
-	originals := All()
+type OriginalsCollection struct {
+	Originals []Original `json:"originals"`
+	models.BaseCollection
+}
 
-	// 获取最大 ID
-	var maxId uint64 = 0
-	for _, o := range originals {
-		if o.ID > maxId {
-			maxId = o.ID
-		}
-	}
+func (original *Original) Create() {
+	ocl := All()
 
 	// 给予当前模型 ID
-	original.ID = maxId + 1
-	originals = append(originals, *original)
+	ocl.MaxID += 1
+	original.ID = ocl.MaxID
+	original.CreatedAt = app.TimenowInTimezone()
+	original.UpdatedAt = app.TimenowInTimezone()
+	ocl.Originals = append(ocl.Originals, *original)
 
-	oss.Upload(ApiPath, originals)
-	oss.Upload(ApiPath+"/"+cast.ToString(original.ID), original)
+	models.UploadToOss(ApiPath, ocl, original)
 }
 
 func (original *Original) Save() (rowsAffected int64) {
-	originals := All()
-	for i, o := range originals {
+
+	original.UpdatedAt = app.TimenowInTimezone()
+
+	ocl := All()
+	for i, o := range ocl.Originals {
 		if o.ID == original.ID {
-			originals[i].Name = original.Name
-			originals[i].AccountName = original.AccountName
-			originals[i].Password = original.Password
+			ocl.Originals[i].Name = original.Name
+			ocl.Originals[i].AccountName = original.AccountName
+			ocl.Originals[i].Password = original.Password
+
+			ocl.Originals[i].UpdatedAt = original.UpdatedAt
 		}
 	}
-	oss.Upload(ApiPath, originals)
-	oss.Upload(ApiPath+"/"+cast.ToString(original.ID), original)
+	models.UploadToOss(ApiPath, ocl, original)
 	return 1
 }
 
 func (original *Original) Delete() (rowsAffected int64) {
-	originals := All()
-	var index int
-	for i, o := range originals {
+	ocl := All()
+	original.DeletedAt = app.TimenowInTimezone()
+	for i, o := range ocl.Originals {
 		if o.ID == original.ID {
-			index = i
+			ocl.Originals[i].DeletedAt = original.DeletedAt
 		}
 	}
-	originals = append(originals[:index], originals[index+1:]...)
-	oss.Upload(ApiPath, originals)
-	oss.Delete(ApiPath + "/" + cast.ToString(original.ID))
+
+	models.DeleteOnOss(ApiPath, ocl, original)
 	return 1
 }
