@@ -1,27 +1,27 @@
 package project
 
 import (
-    "encoding/json"
-    "github.com/curatorc/cngf/logger"
-    "github.com/spf13/cast"
-    "sentry-white-go/app/handlers/oss"
+	"encoding/json"
+	"github.com/curatorc/cngf/cache"
+	"github.com/curatorc/cngf/logger"
+	"sentry-white-go/app/handlers/oss"
+	"sentry-white-go/app/models"
 )
 
 func Get(idstr string) (project Project) {
-	projects := All()
-	for _, p := range projects {
-		if p.ID == cast.ToUint64(idstr) {
-			project = p
-		}
-	}
+	models.GetModelFromOSS(ApiPath+"/"+idstr, &project)
 	return
 }
 
-func All() (projects []Project) {
-	if oss.IsExist(ApiPath) {
-		response := oss.Get(oss.SignURL(ApiPath))
-		err := json.Unmarshal([]byte(response), &projects)
-		logger.LogIf(err)
-	}
-	return projects
+func All() ProjectsCollection {
+	wanted := ProjectsCollection{}
+	cache.RememberObject("cache-key-"+ApiPath, 200, &wanted, func() {
+		if oss.IsExist(ApiPath) {
+			response := oss.Get(oss.SignURL(ApiPath))
+			err := json.Unmarshal([]byte(response), &wanted)
+			logger.LogIf(err)
+		}
+	})
+
+	return wanted
 }

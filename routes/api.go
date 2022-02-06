@@ -26,5 +26,35 @@ func RegisterAPIRoutes(r *gin.Engine) {
 			ocGroup.PUT("/:id", oc.Update)
 			ocGroup.DELETE("/:id", oc.Delete)
 		}
+
+		pcGroup := v1.Group("projects")
+		{
+			pc := new(controllers.ProjectsController)
+			pcGroup.GET("", pc.Index)
+			pcGroup.GET("/:id", pc.Show)
+			pcGroup.POST("", pc.Store)
+			pcGroup.PUT("/:id", pc.Update)
+			pcGroup.DELETE("/:id", pc.Delete)
+		}
+
+		rcGroup := v1.Group("robots")
+		{
+			rc := new(controllers.RobotsController)
+			rcGroup.GET("", rc.Index)
+			rcGroup.GET("/:id", rc.Show)
+			rcGroup.POST("", rc.Store)
+			rcGroup.PUT("/:id", rc.Update)
+			rcGroup.DELETE("/:id", rc.Delete)
+		}
+
+		rpcGroup := v1.Group("responsible_people")
+		{
+			rpc := new(controllers.ResponsiblePeopleController)
+			rpcGroup.GET("", rpc.Index)
+			rpcGroup.GET("/:id", rpc.Show)
+			rpcGroup.POST("", rpc.Store)
+			rpcGroup.PUT("/:id", rpc.Update)
+			rpcGroup.DELETE("/:id", rpc.Delete)
+		}
 	}
 }

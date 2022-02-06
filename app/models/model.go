@@ -2,6 +2,8 @@
 package models
 
 import (
+	"encoding/json"
+	"github.com/curatorc/cngf/logger"
 	"sentry-white-go/app/handlers/oss"
 	"time"
 
@@ -43,4 +45,13 @@ func UploadToOss(path string, collection interface{}, newModel IModel) {
 func DeleteOnOss(path string, collection interface{}, newModel IModel) {
 	oss.Upload(path, collection)
 	oss.Delete(path + "/" + newModel.GetStringID())
+}
+
+// GetModelFromOSS 从 OSS 中获取单个模型信息
+func GetModelFromOSS(path string, model interface{}) {
+	if oss.IsExist(path) {
+		response := oss.Get(oss.SignURL(path))
+		err := json.Unmarshal([]byte(response), &model)
+		logger.LogIf(err)
+	}
 }

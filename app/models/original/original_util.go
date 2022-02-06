@@ -5,29 +5,23 @@ import (
 	"github.com/curatorc/cngf/cache"
 	"github.com/curatorc/cngf/logger"
 	"sentry-white-go/app/handlers/oss"
+	"sentry-white-go/app/models"
 )
 
 func Get(idstr string) (original Original) {
-	path := ApiPath + "/" + idstr
-	if oss.IsExist(path) {
-		response := oss.Get(oss.SignURL(path))
-		err := json.Unmarshal([]byte(response), &original)
-		logger.LogIf(err)
-	}
+	models.GetModelFromOSS(ApiPath+"/"+idstr, &original)
 	return
 }
 
-var cacheKey = "cache-key-" + ApiPath
-
 func All() OriginalsCollection {
-	return cache.Remember(cacheKey, 200, func() interface{} {
-		var ocl OriginalsCollection
+	wanted := OriginalsCollection{}
+	cache.RememberObject("cache-key-"+ApiPath, 200, &wanted, func() {
 		if oss.IsExist(ApiPath) {
 			response := oss.Get(oss.SignURL(ApiPath))
-			err := json.Unmarshal([]byte(response), &ocl)
+			err := json.Unmarshal([]byte(response), &wanted)
 			logger.LogIf(err)
 		}
-		logger.WarnJSON("originals", "all", ocl)
-		return ocl
-	}).(OriginalsCollection)
+	})
+
+	return wanted
 }

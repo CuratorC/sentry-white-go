@@ -41,8 +41,8 @@ func (oc *OriginalsController) Show(c *gin.Context) {
 }
 
 func (oc *OriginalsController) Store(c *gin.Context) {
-
 	request := requests.OriginalRequest{}
+
 	if ok := requests.Validate(c, &request, requests.OriginalSave); !ok {
 		return
 	}
@@ -76,8 +76,8 @@ func (oc *OriginalsController) Update(c *gin.Context) {
 	originalModel.Name = request.Name
 	originalModel.AccountName = request.AccountName
 	originalModel.Password = request.Password
-	rowsAffected := originalModel.Save()
-	if rowsAffected != 1 {
+	isSuccess := originalModel.Save()
+	if !isSuccess {
 		response.Abort500(c, "更新失败，请稍后尝试~")
 		return
 	}
@@ -93,8 +93,8 @@ func (oc *OriginalsController) Delete(c *gin.Context) {
 		return
 	}
 
-	rowsAffected := originalModel.Delete()
-	if rowsAffected != 1 {
+	isSuccess := originalModel.Delete()
+	if !isSuccess {
 		response.Abort500(c, "删除失败，请稍后尝试~")
 		return
 	}

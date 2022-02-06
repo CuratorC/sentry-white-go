@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/KenmyZhang/aliyun-communicate v0.0.0-20180308134849-7997edc57454 // indirect; 阿里云短信服务
-	github.com/curatorc/cngf v0.0.5
+	github.com/curatorc/cngf v0.0.18
 	github.com/disintegration/imaging v1.6.2 // indirect; 图片裁切
 	github.com/gertd/go-pluralize v0.1.7 // indirect; 单词单复数转换
 	github.com/gin-gonic/gin v1.7.7 // Go 路由工具

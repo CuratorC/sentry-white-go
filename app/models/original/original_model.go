@@ -4,7 +4,6 @@ package original
 import (
 	"github.com/curatorc/cngf/app"
 	"sentry-white-go/app/models"
-	"sentry-white-go/app/models/project"
 )
 
 const ApiPath = "api/v1/originals"
@@ -13,12 +12,18 @@ type Original struct {
 	models.BaseModel
 
 	// Put fields in here
-	Name        string             `json:"name"`
-	AccountName string             `json:"account_name"`
-	Password    string             `json:"password"`
-	Projects    []*project.Project `json:"projects"`
+	Name        string     `json:"name"`
+	AccountName string     `json:"account_name"`
+	Password    string     `json:"password"`
+	Projects    []*Project `json:"projects"`
 
 	models.CommonTimestampsField
+}
+
+type Project struct {
+	ID             uint64 `json:"id"`
+	Name           string `json:"name"`
+	SubstituteName string `json:"substitute_name"`
 }
 
 type OriginalsCollection struct {
@@ -39,7 +44,7 @@ func (original *Original) Create() {
 	models.UploadToOss(ApiPath, ocl, original)
 }
 
-func (original *Original) Save() (rowsAffected int64) {
+func (original *Original) Save() bool {
 
 	original.UpdatedAt = app.TimenowInTimezone()
 
@@ -54,10 +59,10 @@ func (original *Original) Save() (rowsAffected int64) {
 		}
 	}
 	models.UploadToOss(ApiPath, ocl, original)
-	return 1
+	return true
 }
 
-func (original *Original) Delete() (rowsAffected int64) {
+func (original *Original) Delete() bool {
 	ocl := All()
 	original.DeletedAt = app.TimenowInTimezone()
 	for i, o := range ocl.Originals {
@@ -67,5 +72,5 @@ func (original *Original) Delete() (rowsAffected int64) {
 	}
 
 	models.DeleteOnOss(ApiPath, ocl, original)
-	return 1
+	return true
 }

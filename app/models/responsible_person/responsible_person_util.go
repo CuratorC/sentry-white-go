@@ -1,41 +1,28 @@
 package responsible_person
 
 import (
-    "github.com/curatorc/cngf/app"
-    "github.com/curatorc/cngf/database"
-    "github.com/curatorc/cngf/paginator"
-
-    "github.com/gin-gonic/gin"
+	"encoding/json"
+	"github.com/curatorc/cngf/cache"
+	"github.com/curatorc/cngf/logger"
+	"sentry-white-go/app/handlers/oss"
+	"sentry-white-go/app/models"
 )
 
 func Get(idstr string) (responsiblePerson ResponsiblePerson) {
-    database.DB.Where("id", idstr).First(&responsiblePerson)
-    return
+	models.GetModelFromOSS(ApiPath+"/"+idstr, &responsiblePerson)
+	return
 }
 
-func GetBy(field, value string) (responsiblePerson ResponsiblePerson) {
-    database.DB.Where("? = ?", field, value).First(&responsiblePerson)
-    return
-}
+func All() ResponsiblePeopleCollection {
+	wanted := ResponsiblePeopleCollection{}
+	cache.RememberObject("cache-key-"+ApiPath, 200, &wanted, func() {
+		logger.DebugString("responsible_people", "all", "remote")
+		if oss.IsExist(ApiPath) {
+			response := oss.Get(oss.SignURL(ApiPath))
+			err := json.Unmarshal([]byte(response), &wanted)
+			logger.LogIf(err)
+		}
+	})
 
-func All() (responsiblePeople []ResponsiblePerson) {
-    database.DB.Find(&responsiblePeople)
-    return
-}
-
-func IsExist(field, value string) bool {
-    var count int64
-    database.DB.Model(ResponsiblePerson{}).Where(" = ?", field, value).Count(&count)
-    return count > 0
-}
-
-func Paginate(c *gin.Context, perPage int) (responsiblePeople []ResponsiblePerson, paging paginator.Paging) {
-    paging = paginator.Paginate(
-        c,
-        database.DB.Model(ResponsiblePerson{}),
-        &responsiblePeople,
-        app.V1URL(database.TableName(&ResponsiblePerson{})),
-        perPage,
-    )
-    return
+	return wanted
 }

@@ -5,6 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/curatorc/cngf/database"
+	"github.com/curatorc/cngf/logger"
+	"github.com/spf13/cast"
+	"reflect"
+	"sentry-white-go/app/handlers/oss"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -90,6 +94,31 @@ func init() {
 		return nil
 	})
 
+	// 自定义规则 exists，确保数据库存在某条数据
+	// 一个使用场景是创建话题时需要附带 category_id 分类 ID 为参数，此时需要保证
+	// category_id 的值在数据库中存在，即可使用：
+	// exists:categories,id
+	govalidator.AddCustomRule("id_in_oss", func(field string, rule string, message string, value interface{}) error {
+
+		// 模型名称
+		modelName := strings.TrimPrefix(rule, "id_in_oss:")
+
+		// 用户请求过来的数据
+		id := cast.ToString(value)
+
+		if !oss.IsExist("api/v1/" + modelName + "/" + id) {
+			// 如果有自定义错误的消息的话
+			if message != "" {
+				return errors.New(message)
+			}
+			// 默认的错误消息
+			return fmt.Errorf("%v 不存在", id)
+		}
+
+		// 验证通过
+		return nil
+	})
+
 	// max_cn:8 中文长度设定不超过 8
 	govalidator.AddCustomRule("max_cn", func(field string, rule string, message string, value interface{}) error {
 		valLength := utf8.RuneCountInString(value.(string))
@@ -115,6 +144,19 @@ func init() {
 			}
 			return fmt.Errorf("长度不能超过 %d 个字", l)
 		}
+		return nil
+	})
+
+	// 自定义规则 slice，确保数据为切面
+	govalidator.AddCustomRule("slice", func(field string, rule string, message string, value interface{}) error {
+
+		logger.DebugJSON("request", "slice", value)
+		v := reflect.ValueOf(value)
+		if v.Kind() != reflect.Slice {
+			return fmt.Errorf("数据类型必须为数组")
+		}
+
+		// 验证通过
 		return nil
 	})
 }
