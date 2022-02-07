@@ -17,6 +17,7 @@ type LocalStorage struct {
 const FileName = `storage/models/local_storage.model`
 
 func (storage *LocalStorage) Save() bool {
+	err := os.MkdirAll(`storage/models/`, os.ModePerm)
 	s, err := json.Marshal(&storage)
 	logger.LogIf(err)
 	// 保存到文件

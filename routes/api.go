@@ -56,5 +56,12 @@ func RegisterAPIRoutes(r *gin.Engine) {
 			rpcGroup.PUT("/:id", rpc.Update)
 			rpcGroup.DELETE("/:id", rpc.Delete)
 		}
+
+		lsGroup := v1.Group("local_storages")
+		{
+			lsc := new(controllers.LocalStoragesController)
+			lsGroup.GET("", lsc.Show)
+			lsGroup.PUT("", lsc.Update)
+		}
 	}
 }

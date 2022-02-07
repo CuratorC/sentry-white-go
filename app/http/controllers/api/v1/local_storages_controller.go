@@ -4,7 +4,6 @@ import (
 	"github.com/curatorc/cngf/response"
 	"github.com/gin-gonic/gin"
 	"sentry-white-go/app/models/local_storage"
-	"sentry-white-go/app/models/original"
 	"sentry-white-go/app/requests"
 )
 
@@ -13,12 +12,7 @@ type LocalStoragesController struct {
 }
 
 func (lsc *LocalStoragesController) Show(c *gin.Context) {
-	originalModel := original.Get(c.Param("id"))
-	if originalModel.ID == 0 {
-		response.Abort404(c)
-		return
-	}
-
+	originalModel := local_storage.Get()
 	response.Data(c, originalModel)
 }
 
