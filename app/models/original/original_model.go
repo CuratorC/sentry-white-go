@@ -37,8 +37,8 @@ func (original *Original) Create() {
 	// 给予当前模型 ID
 	ocl.MaxID += 1
 	original.ID = ocl.MaxID
-	original.CreatedAt = app.TimenowInTimezone()
-	original.UpdatedAt = app.TimenowInTimezone()
+	original.CreatedAt = app.Now()
+	original.UpdatedAt = app.Now()
 	ocl.Originals = append(ocl.Originals, *original)
 
 	models.UploadToOss(ApiPath, ocl, original)
@@ -46,7 +46,7 @@ func (original *Original) Create() {
 
 func (original *Original) Save() bool {
 
-	original.UpdatedAt = app.TimenowInTimezone()
+	original.UpdatedAt = app.Now()
 
 	ocl := All()
 	for i, o := range ocl.Originals {
@@ -64,7 +64,7 @@ func (original *Original) Save() bool {
 
 func (original *Original) Delete() bool {
 	ocl := All()
-	original.DeletedAt = app.TimenowInTimezone()
+	original.DeletedAt = app.Now()
 	for i, o := range ocl.Originals {
 		if o.ID == original.ID {
 			ocl.Originals[i].DeletedAt = original.DeletedAt

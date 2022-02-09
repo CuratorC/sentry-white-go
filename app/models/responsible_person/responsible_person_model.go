@@ -30,15 +30,15 @@ func (responsiblePerson *ResponsiblePerson) Create() {
 	// 给予当前模型 ID
 	rpcl.MaxID += 1
 	responsiblePerson.ID = rpcl.MaxID
-	responsiblePerson.CreatedAt = app.TimenowInTimezone()
-	responsiblePerson.UpdatedAt = app.TimenowInTimezone()
+	responsiblePerson.CreatedAt = app.Now()
+	responsiblePerson.UpdatedAt = app.Now()
 	rpcl.ResponsiblePeople = append(rpcl.ResponsiblePeople, *responsiblePerson)
 
 	models.UploadToOss(ApiPath, rpcl, responsiblePerson)
 }
 
 func (responsiblePerson *ResponsiblePerson) Save() bool {
-	responsiblePerson.UpdatedAt = app.TimenowInTimezone()
+	responsiblePerson.UpdatedAt = app.Now()
 
 	// 其次修改列表中的信息
 	rpcl := All()
@@ -57,7 +57,7 @@ func (responsiblePerson *ResponsiblePerson) Save() bool {
 func (responsiblePerson *ResponsiblePerson) Delete() bool {
 
 	rpcl := All()
-	responsiblePerson.DeletedAt = app.TimenowInTimezone()
+	responsiblePerson.DeletedAt = app.Now()
 	for i, rp := range rpcl.ResponsiblePeople {
 		if rp.ID == responsiblePerson.ID {
 			rpcl.ResponsiblePeople[i].DeletedAt = responsiblePerson.DeletedAt

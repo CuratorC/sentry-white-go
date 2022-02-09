@@ -4,10 +4,9 @@ package models
 import (
 	"encoding/json"
 	"github.com/curatorc/cngf/logger"
-	"sentry-white-go/app/handlers/oss"
-	"time"
-
+	"github.com/curatorc/cngf/timer"
 	"github.com/spf13/cast"
+	"sentry-white-go/app/handlers/oss"
 )
 
 type IModel interface {
@@ -23,9 +22,9 @@ type BaseModel struct {
 
 // CommonTimestampsField 时间戳
 type CommonTimestampsField struct {
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	CreatedAt timer.Time `json:"created_at,omitempty"`
+	UpdatedAt timer.Time `json:"updated_at,omitempty"`
+	DeletedAt timer.Time `json:"deleted_at,omitempty"`
 }
 
 // BaseCollection 模型集合

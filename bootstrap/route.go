@@ -2,12 +2,11 @@
 package bootstrap
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"sentry-white-go/app/http/middlewares"
 	"sentry-white-go/routes"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 // SetupRoute 路由初始化
@@ -25,10 +24,21 @@ func SetupRoute(router *gin.Engine) {
 // 注册全局路由
 func registerGlobalMiddleWare(router *gin.Engine) {
 	router.Use(
+		middlewares.Cors(),
 		middlewares.Logger(),
 		middlewares.Recovery(),
 		middlewares.ForceUA(),
+		/*cors.New(cors.Config{
+			AllowAllOrigins:  true,
+			AllowMethods:     []string{"GET", "POST", "PUT", "OPTIONS"},
+			AllowHeaders:     []string{"Origin"},
+			AllowCredentials: true,
+			ExposeHeaders:    []string{"Content-Length"},
+			MaxAge:           12 * time.Hour,
+			AllowOption
+		}),*/
 	)
+
 }
 
 // 配置 404 请求

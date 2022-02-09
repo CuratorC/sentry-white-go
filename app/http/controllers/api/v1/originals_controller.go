@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/curatorc/cngf/logger"
 	"github.com/curatorc/cngf/response"
 	"github.com/gin-gonic/gin"
 	"sentry-white-go/app/models/original"
@@ -17,6 +18,7 @@ func (oc *OriginalsController) Index(c *gin.Context) {
 	// 过滤 deleted
 	var os []original.Original
 	for _, o := range ocl.Originals {
+		logger.DebugJSON("originals", "show", o)
 		if o.DeletedAt.IsZero() {
 			os = append(os, o)
 		}

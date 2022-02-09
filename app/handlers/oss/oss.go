@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/curatorc/cngf/config"
+	"github.com/curatorc/cngf/helpers"
 	"github.com/curatorc/cngf/logger"
 	"net/http"
 	"sentry-white-go/app/models/local_storage"
@@ -15,28 +15,14 @@ import (
 func getBucket() (b *oss.Bucket) {
 	lsm := local_storage.Get()
 
-	logger.DebugString("oss", "endpoint", config.Get("oss.endpoint"))
-	logger.DebugString("oss", "access_key_id", config.Get("oss.access_key_id"))
-	logger.DebugString("oss", "access_key_secret", config.Get("oss.access_key_secret"))
-	logger.DebugString("oss", "bucket", config.Get("oss.bucket"))
-
-	logger.DebugString("oss", "endpoint", lsm.AliyunAccessOSSEndpoint)
-	logger.DebugString("oss", "access_key_id", lsm.AliyunAccessID)
-	logger.DebugString("oss", "access_key_secret", lsm.AliyunAccessSecret)
-	logger.DebugString("oss", "bucket", lsm.AliyunAccessOSSBucket)
 	c, err := oss.New(
 		lsm.AliyunAccessOSSEndpoint,
 		lsm.AliyunAccessID,
 		lsm.AliyunAccessSecret,
 		oss.Timeout(10, 120),
 	)
-	/*c, err := oss.New(
-		config.GetString(lsm.AliyunAccessOSSEndpoint),
-		config.GetString(lsm.AliyunAccessID),
-		config.GetString(lsm.AliyunAccessSecret),
-		oss.Timeout(10, 120),
-	)*/
 	logger.LogIf(err)
+	c.GetBucketStat(lsm.AliyunAccessOSSBucket)
 	b, err = c.Bucket(lsm.AliyunAccessOSSBucket)
 	logger.LogIf(err)
 	return
@@ -80,6 +66,23 @@ func IsExist(fileName string) (isExist bool) {
 	isExist, err := bucket.IsObjectExist(fileName)
 	logger.LogIf(err)
 	return isExist
+}
+
+// BucketConnectionSuccess 判断OSS权限是否通过
+func BucketConnectionSuccess() (success bool) {
+	lsm := local_storage.Get()
+	c, err := oss.New(
+		lsm.AliyunAccessOSSEndpoint,
+		lsm.AliyunAccessID,
+		lsm.AliyunAccessSecret,
+		oss.Timeout(10, 120),
+	)
+	logger.LogIf(err)
+	stat, err := c.GetBucketInfo(lsm.AliyunAccessOSSBucket)
+	if err != nil || helpers.Empty(stat.BucketInfo.Name) {
+		return false
+	}
+	return true
 }
 
 // Get 发送GET请求

@@ -33,8 +33,8 @@ func (robot *Robot) Create() {
 	// 给予当前模型 ID
 	rcl.MaxID += 1
 	robot.ID = rcl.MaxID
-	robot.CreatedAt = app.TimenowInTimezone()
-	robot.UpdatedAt = app.TimenowInTimezone()
+	robot.CreatedAt = app.Now()
+	robot.UpdatedAt = app.Now()
 	rcl.Robots = append(rcl.Robots, *robot)
 
 	models.UploadToOss(ApiPath, rcl, robot)
@@ -44,7 +44,7 @@ func (robot *Robot) Create() {
 }
 
 func (robot *Robot) Save(oldProjectID uint64) bool {
-	robot.UpdatedAt = app.TimenowInTimezone()
+	robot.UpdatedAt = app.Now()
 
 	// 首先修改父级中的信息
 	if oldProjectID == robot.ProjectID { // 当组织ID没有改变时
@@ -77,7 +77,7 @@ func (robot *Robot) Save(oldProjectID uint64) bool {
 func (robot *Robot) Delete() bool {
 	deleteOnProject(robot.ProjectID)
 	rcl := All()
-	robot.DeletedAt = app.TimenowInTimezone()
+	robot.DeletedAt = app.Now()
 	for i, r := range rcl.Robots {
 		if r.ID == robot.ID {
 			rcl.Robots[i].DeletedAt = robot.DeletedAt

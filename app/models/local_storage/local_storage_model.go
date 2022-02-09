@@ -23,6 +23,7 @@ func (storage *LocalStorage) Save() bool {
 	// 保存到文件
 	err = ioutil.WriteFile(FileName, s, 0666)
 	logger.LogIf(err)
+
 	return true
 }
 

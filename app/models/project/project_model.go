@@ -42,8 +42,8 @@ func (project *Project) Create() {
 	// 给予当前模型 ID
 	pcl.MaxID += 1
 	project.ID = pcl.MaxID
-	project.CreatedAt = app.TimenowInTimezone()
-	project.UpdatedAt = app.TimenowInTimezone()
+	project.CreatedAt = app.Now()
+	project.UpdatedAt = app.Now()
 	pcl.Projects = append(pcl.Projects, *project)
 
 	models.UploadToOss(ApiPath, pcl, project)
@@ -54,7 +54,7 @@ func (project *Project) Create() {
 
 func (project *Project) Save(oldOriginalID uint64) bool {
 
-	project.UpdatedAt = app.TimenowInTimezone()
+	project.UpdatedAt = app.Now()
 
 	// 首先修改父级中的信息
 	if oldOriginalID == project.OriginalID { // 当组织ID没有改变时
@@ -93,7 +93,7 @@ func (project *Project) Delete() bool {
 
 	deleteOnOriginal(project, project.OriginalID)
 	pcl := All()
-	project.DeletedAt = app.TimenowInTimezone()
+	project.DeletedAt = app.Now()
 	for i, o := range pcl.Projects {
 		if o.ID == project.ID {
 			pcl.Projects[i].DeletedAt = project.DeletedAt

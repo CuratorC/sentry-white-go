@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/KenmyZhang/aliyun-communicate v0.0.0-20180308134849-7997edc57454 // indirect; 阿里云短信服务
-	github.com/curatorc/cngf v0.0.18
+	github.com/curatorc/cngf v0.0.30
 	github.com/disintegration/imaging v1.6.2 // indirect; 图片裁切
 	github.com/gertd/go-pluralize v0.1.7 // indirect; 单词单复数转换
 	github.com/gin-gonic/gin v1.7.7 // Go 路由工具
@@ -24,7 +24,10 @@ require (
 	gorm.io/gorm v1.22.4 // indirect; GORM
 )
 
-require github.com/aliyun/aliyun-oss-go-sdk v2.2.0+incompatible
+require (
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.0+incompatible
+	github.com/gin-contrib/cors v1.3.1
+)
 
 require (
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect

@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/curatorc/cngf/response"
 	"github.com/gin-gonic/gin"
+	"sentry-white-go/app/handlers/oss"
 	"sentry-white-go/app/models/local_storage"
 	"sentry-white-go/app/requests"
 )
@@ -13,6 +14,7 @@ type LocalStoragesController struct {
 
 func (lsc *LocalStoragesController) Show(c *gin.Context) {
 	originalModel := local_storage.Get()
+
 	response.Data(c, originalModel)
 }
 
@@ -36,5 +38,12 @@ func (lsc *LocalStoragesController) Update(c *gin.Context) {
 		return
 	}
 
-	response.Data(c, lsm)
+	// 测试是否可用
+	success := oss.BucketConnectionSuccess()
+	if success {
+		response.Success(c)
+	} else {
+		response.Success(c, "保存成功，但是 Bucket 验证失败。。。请检查阿里云相关参数")
+	}
+
 }
