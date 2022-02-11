@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"github.com/curatorc/cngf/config"
 	"github.com/curatorc/cngf/console"
+	"github.com/curatorc/cngf/logger"
 	"os"
+	"os/exec"
+	"runtime"
 	"sentry-white-go/app/cmd"
 	"sentry-white-go/app/cmd/make"
 	"sentry-white-go/bootstrap"
@@ -57,8 +60,28 @@ func main() {
 	// 注册全局参数，--env
 	cmd.RegisterGlobalFlags(rootCmd)
 
+	err := open("./html/index.html")
+	logger.LogIf(err)
 	// 执行主命令
 	if err := rootCmd.Execute(); err != nil {
 		console.Exit(fmt.Sprintf("Failed to run app with %v: %s", os.Args, err.Error()))
 	}
+}
+
+// open opens the specified URL in the default browser of the user.
+func open(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }

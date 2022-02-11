@@ -20,7 +20,7 @@ type Project struct {
 	Name                string   `json:"name"`
 	SubstituteName      string   `json:"substitute_name"`
 	Robot               *Robot   `json:"robot"`
-	ResponsiblePeopleID []uint64 `json:"responsible_people"`
+	ResponsiblePeopleID []uint64 `json:"responsible_people_id"`
 	OriginalID          uint64   `json:"original_id"`
 
 	models.CommonTimestampsField
